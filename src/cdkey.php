@@ -6,12 +6,12 @@ include_once __DIR__ . '/libs/cdkeyHelper.php';
 use Curl\Curl;
 
 $curl = new Curl();
-$logger = new Log("logs");
-$cdkeyHelper = new CdkeyHelper(new mysqli("localhost","gc_cdkey","a2DtiimwENhBeDAW","gc_cdkey"));
+$logger = new Log("logs");// 日志记录器
+$cdkeyHelper = new CdkeyHelper(new mysqli("localhost","gc_cdkey","%替换为你的数据库密码%","gc_cdkey"));
 //$cdkeyHelper->Add("TESTCDKEY",1145,json_encode(array("101 9999 1","102 9999 1","103 9999 1")));
 
 header("Content-Type: application/json");
-$mailSender = new GcMailSender($curl,array("LLnWdfEVlC2HRv7iVYFK1p+au54q/5ZO","http://ps.gitdl.cn:4433/opencommand/api"));
+$mailSender = new GcMailSender($curl,array("%替换为你的OpenCommand-ConsoleToken%","http://%替换为你的GCIP:GC端口/opencommand/api"));
 $msg = "MSG_NOT_INITIALIZED";
 $code = -2003;
 $data = explode("CDKEYEND",$_GET['cdkey']);
