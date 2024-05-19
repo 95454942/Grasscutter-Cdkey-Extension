@@ -5,7 +5,6 @@ class CdkeyHelper
     private $db;
     private $t_cdkey = "cdkeys";
     private $t_history = "cdkey_history";
-
     function __construct($db,$tConfig = false)
     {
         $this->db = $db;
@@ -40,25 +39,21 @@ class CdkeyHelper
         $result = $stmt->get_result();
         return $result->fetch_assoc();
     }
-    function Usage($cdkey,$uid,$note = null)
-    {
-        if ($this->Verify($cdkey,$uid))
-        {
-            $stmt = $this->db->prepare("INSERT INTO `$this->t_history` (`id`, `cdkey`, `ip`, `uid`, `note`) VALUES (NULL, ?, ?, ?, ?)");
-            $stmt->bind_param("ssis",$cdkey,$this->GetCLientIP(),$uid,$note);
-            if ($stmt->execute())
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+function Usage($cdkey, $uid, $note = null)
+{
+    if ($this->Verify($cdkey, $uid)) {
+        $clientIP = $this->GetCLientIP();
+        $stmt = $this->db->prepare("INSERT INTO `$this->t_history` (`id`, `cdkey`, `ip`, `uid`, `note`) VALUES (NULL, ?, ?, ?, ?)");
+        $stmt->bind_param("ssis", $cdkey, $clientIP, $uid, $note);
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            return false;
         }
-        else
+    } else {
         return false;
-
     }
+}
     function Verify($cdkey, $uid)
     {
         $stmt = $this->db->prepare("SELECT cdkey, uid from `$this->t_history` WHERE `cdkey` = ? AND `uid` = ?");

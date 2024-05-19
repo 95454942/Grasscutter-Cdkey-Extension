@@ -3,7 +3,8 @@ class GcMailSender
 {
     public $mContent = "MAIL_CONTENT";
     public $mTitle = "MAIL_TITLE";
-    public $mTarget = "10001";
+    public $mTarget = "";
+    public $mTargetServer = "";
     public $mSender = "GameMaster";
     public $mItem = false;
     public $mItems = array("101 9999 1");
@@ -11,19 +12,16 @@ class GcMailSender
     public $openCommandConfig = array();
     private $curlLib ;
     public $openCommandUrl; 
-    private $cHeader = "/sendMail";
+    private $cHeader = "sendMail";
     private $eEndTag = "finish";
     function __construct($curl,$sConfig)
     {
         $this->curlLib = $curl;
-        // $this->mTitle = $title;
-        // $this->mContent = $content;
-        // $this->mTarget = $UID;
-        // $this->mSender = $senderName;
         $this->openCommandUrl = $sConfig[1];
         $this->openCommandConfig = array(
             "token"=>$sConfig[0],
             "action"=>"command",
+            "server"=>&$this->mTargetServer,
             "data"=>"ping"
         );
     }
@@ -49,15 +47,18 @@ class GcMailSender
     {
         $logger = new Log("logs");
         $this->openCommandConfig['data'] = $this->Build();
-        
+        $logger->Info($this->Build());
         $this->curlLib->post($this->openCommandUrl,json_encode($this->openCommandConfig));
-
         if ($this->curlLib->error) {
             $logger->Error(json_encode($this->curlLib->errorMessage . "\n"));
             $logger->Error(json_encode($this->curlLib->diagnose()));
         } else {
             $logger->Info(json_encode($this->curlLib->response) . "\n");
             
+        }
+        if ($this->curlLib->response->retcode == 404)
+        {
+            throw new ErrorException("未找到目标服务器",404);
         }
     }
     private function ResetConfig()
