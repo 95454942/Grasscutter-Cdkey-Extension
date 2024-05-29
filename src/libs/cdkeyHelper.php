@@ -31,6 +31,23 @@ class CdkeyHelper
     {
         
     }
+    function GenerateCdkey($Count = 1,$length = 12)
+    {
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $cdkeys = array();
+        $cdkey = '';
+        for ($q = 0;$q <$Count;$q++)
+        {
+            $cdkey = '';
+            for ($i = 0; $i < $length; $i++) {
+                $cdkey .= $characters[rand(0, $charactersLength - 1)];
+            }
+            array_push($cdkeys,$cdkey);
+        }
+
+        return $cdkeys;
+    }
     function View($cdkey)
     {
         $stmt = $this->db->prepare("SELECT * from `$this->t_cdkey` WHERE `cdkey` = ?");
@@ -66,11 +83,15 @@ function Usage($cdkey, $uid, $note = null)
         $stmt->bind_param("s", $cdkey);
         $stmt->execute();
         $USAGE_COUNT = $stmt->get_result()->num_rows;
-        $stmt = $this->db->prepare("SELECT * from `$this->t_cdkey` WHERE `cdkey` = ? AND `is_valid` = 1 AND `expire_time` != 0 OR `expire_time` > current_timestamp");
+        $stmt = $this->db->prepare("SELECT * from `$this->t_cdkey` WHERE `cdkey` = ? AND `is_valid` = 1 OR `expire_time` != 0 AND `expire_time` > current_timestamp");
         $stmt->bind_param("s", $cdkey);
         $stmt->execute();
         $result = $stmt->get_result();
         $R = $result->fetch_assoc();
+        if ($R == null)
+        {
+            return false;
+        }
         if ($R['max_usage_count'] <= $USAGE_COUNT && $R['max_usage_count'] != 0)
         {
             return false;

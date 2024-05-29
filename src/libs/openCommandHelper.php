@@ -7,10 +7,10 @@ class OpenCommandHelper{
     public $curlLib;
     public $serverList = array();
     public $logger;
-    function __construct($ck,$url,$curl)
+    function __construct($ocf,$curl)
     {
-        $this->url = $url;
-        $this->consoleToken = $ck;
+        $this->url = $ocf[1];
+        $this->consoleToken = $ocf[0];
         $this->curlLib = $curl;
 
     }

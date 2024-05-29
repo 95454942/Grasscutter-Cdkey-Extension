@@ -5,6 +5,9 @@ include_once __DIR__ . '/libs/log.php';
 include_once __DIR__ . '/libs/cdkeyHelper.php';
 include_once __DIR__ . '/libs/RSAHelper.php';
 include_once __DIR__ . '/libs/openCommandHelper.php';
+include_once __DIR__ . '/actions.php';
+include_once __DIR__ . '/configs.php';
+
 use Curl\Curl;
 
 $curl = new Curl();
@@ -14,6 +17,7 @@ header("Content-Type: application/json");
 function customErrorHandler($errorNumber, $errorMessage, $errorFile, $errorLine) {
     global $logger;
     $logger->Fatal("[$errorNumber] $errorMessage in $errorFile on line $errorLine");
+    $logger->Fatal("堆栈信息:" . json_encode(debug_backtrace()));
     onError();
 
 }
@@ -36,18 +40,25 @@ set_error_handler("customErrorHandler");
 // 设置全局异常处理程序
 set_exception_handler("customExceptionHandler");
 
-$cdkeyHelper = new CdkeyHelper(new mysqli("localhost","gc_cdkey","a2DtiimwENhBeDAW","gc_cdkey"));
+$cdkeyHelper = new CdkeyHelper(new mysqli(DB_HOST,DB_USER,DB_PASSWD,DB_NAME));
 //$cdkeyHelper->Add("TESTCDKEY",1145,json_encode(array("101 9999 1","102 9999 1","103 9999 1")));
+
+
+if (array_key_exists("action",$_GET))
+{
+    ActionHandler($_GET['action'],$_GET,$cdkeyHelper);
+}
 $authkey = $_GET['authkey'];
 $cdkey = $_GET['cdkey'];
 $authkey = json_decode(RSAdecrypt($authkey,file_get_contents("private_key.pem")));
+$logger->info(json_encode($authkey));
 $uid = $authkey->uid;
 $nickname = $authkey->nickname;
-$level = $authkey->level;
+//$level = $authkey->level;
 $targetServer = $_GET['server'];
 
-$mailSender = new GcMailSender($curl,array('Gd&d@$QA2FecE8gu',"http://ps.gitdl.cn:4433/opencommand/api"));
-$och = new OpenCommandHelper('Gd&d@$QA2FecE8gu',"http://ps.gitdl.cn:4433/opencommand/api",$curl);
+$mailSender = new GcMailSender($curl,$ocf);
+$och = new OpenCommandHelper($ocf,$curl);
 $och->logger = $logger;
 $multiServer = $och->isMultiServer();
 
@@ -88,4 +99,3 @@ else {
 
 die( "{\"retcode\":$code,\"message\":\"$msg\"}");
 
-# {"token":"LLnWdfEVlC2HRv7iVYFK1p+au54q/5ZO","action":"command","data":"sendMail 10001 |/sendMail 测试 |/sendMail sssssssss |/sendMail GrasscutterTools |/sendMail 111 9999 1 |/sendMail finish @10004"}
