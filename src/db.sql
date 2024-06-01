@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2024-05-05 09:49:48
+-- 生成日期： 2024-06-01 12:43:02
 -- 服务器版本： 5.7.43-log
 -- PHP 版本： 7.4.33
 
@@ -20,8 +20,6 @@ SET time_zone = "+00:00";
 --
 -- 数据库： `gc_cdkey`
 --
-CREATE DATABASE IF NOT EXISTS `gc_cdkey` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `gc_cdkey`;
 
 -- --------------------------------------------------------
 
@@ -30,13 +28,13 @@ USE `gc_cdkey`;
 --
 
 CREATE TABLE `cdkeys` (
-  `cdkey` varchar(32) NOT NULL,
-  `max_usage_count` int(8) NOT NULL DEFAULT '1',
-  `add_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `expire_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `items` json DEFAULT NULL,
-  `is_valid` int(1) NOT NULL DEFAULT '1',
-  `note` varchar(256) DEFAULT NULL
+  `cdkey` varchar(32) NOT NULL COMMENT '兑换码',
+  `max_usage_count` int(8) NOT NULL DEFAULT '1' COMMENT '最大使用次数',
+  `add_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '兑换码添加时间',
+  `expire_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '过期时间\r\n0为永不过期',
+  `items` json DEFAULT NULL COMMENT 'json数组形式的兑换奖励',
+  `is_valid` int(1) NOT NULL DEFAULT '1' COMMENT '是否有效',
+  `note` varchar(256) DEFAULT NULL COMMENT '备注'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -46,12 +44,12 @@ CREATE TABLE `cdkeys` (
 --
 
 CREATE TABLE `cdkey_history` (
-  `id` int(11) NOT NULL,
-  `cdkey` varchar(32) NOT NULL,
-  `ip` varchar(15) DEFAULT NULL,
-  `uid` int(11) NOT NULL,
-  `usage_dt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `note` varchar(256) DEFAULT NULL
+  `id` int(11) NOT NULL COMMENT '自增id主键',
+  `cdkey` varchar(32) NOT NULL COMMENT '被使用的兑换码',
+  `ip` varchar(15) DEFAULT NULL COMMENT '兑换者IP',
+  `uid` int(11) NOT NULL COMMENT '游戏uid',
+  `usage_dt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '被使用时间',
+  `note` varchar(256) DEFAULT NULL COMMENT '备注'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -79,7 +77,7 @@ ALTER TABLE `cdkey_history`
 -- 使用表AUTO_INCREMENT `cdkey_history`
 --
 ALTER TABLE `cdkey_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id主键';
 
 --
 -- 限制导出的表
